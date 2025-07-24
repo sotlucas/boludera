@@ -114,8 +114,11 @@ export default function WordLadder() {
 
           <div className="space-y-4 mb-8">
             {currentPuzzle.words.map((word, index) => (
-              <div key={index} className="flex items-center space-x-4">
-                <div className="flex-1 flex items-center space-x-4">
+              <div
+                key={index}
+                className="flex items-center justify-center space-x-4"
+              >
+                <div className="flex items-center space-x-4">
                   <input
                     type="text"
                     value={userWords[index]}
@@ -135,7 +138,7 @@ export default function WordLadder() {
                       revealedRows[index] ||
                       userWords[index] === currentPuzzle.words[index]
                     }
-                    className="px-3 py-2 text-sm bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 disabled:text-gray-500 text-white disabled:text-gray-500 rounded-lg transition-colors cursor-pointer"
+                    className="px-3 py-2 text-sm bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 disabled:text-gray-500 text-white rounded-lg transition-colors cursor-pointer"
                   >
                     Revelar
                   </button>
@@ -145,8 +148,8 @@ export default function WordLadder() {
           </div>
 
           <div className="space-y-3 mb-8 min-h-16">
-            <div className="flex items-start space-x-3 bg-gray-50 p-4 rounded-lg">
-              <span className="text-gray-700 text-lg">
+            <div className="flex items-center justify-center space-x-3 bg-gray-50 p-4 rounded-lg">
+              <span className="text-gray-700 text-lg text-center">
                 {currentPuzzle.clues[selectedRow]}
               </span>
             </div>
