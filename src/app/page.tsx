@@ -11,6 +11,7 @@ const GAME_PUZZLES = [
       "Persona que actúa de manera deshonesta o traicionera.",
       "Sinónimo de esfuerzo (en deportes).",
     ],
+    title: "",
   },
 ];
 
