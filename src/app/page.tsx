@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import ImgMate from "@/assets/mate.png";
+import Image from "next/image";
 
 const GAME_PUZZLES = [
   {
@@ -26,6 +28,7 @@ export default function WordLadder() {
     false,
   ]);
   const [gameComplete, setGameComplete] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(0);
 
   useEffect(() => {
     resetGame();
@@ -35,6 +38,7 @@ export default function WordLadder() {
     setUserWords(["", "", "", ""]);
     setRevealedRows([false, false, false, false]);
     setGameComplete(false);
+    setSelectedRow(0);
   };
 
   const handleInputChange = (index: number, value: string) => {
@@ -85,21 +89,28 @@ export default function WordLadder() {
       return "bg-blue-100 border-blue-400 text-blue-800";
     } else if (word && word === correctWord) {
       return "bg-green-100 border-green-400 text-green-800";
+    } else if (selectedRow === index) {
+      return "bg-yellow-50 border-yellow-400 text-gray-800";
     } else {
       return "bg-gray-50 border-gray-300 text-gray-800";
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-400 to-purple-600 p-4">
+    <div className="min-h-screen bg-gradient-to-br bg-[#74acdf] p-4">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-xl shadow-2xl p-8">
-          <h1 className="text-4xl font-bold text-center mb-2 text-gray-800">
-            Word Ladder
-          </h1>
-          <h2 className="text-xl text-center text-gray-600 mb-8">
-            {currentPuzzle.title}
-          </h2>
+          <div className="flex items-center justify-center mb-8">
+            <h1 className="text-4xl font-bold text-gray-800">boludera</h1>
+            <Image
+              className="h-8 w-8 ml-3 cursor-pointer"
+              src={ImgMate}
+              alt="mate"
+              width={32}
+              height={32}
+              priority
+            />
+          </div>
 
           <div className="space-y-4 mb-8">
             {currentPuzzle.words.map((word, index) => (
@@ -113,7 +124,8 @@ export default function WordLadder() {
                     type="text"
                     value={userWords[index]}
                     onChange={(e) => handleInputChange(index, e.target.value)}
-                    className={`w-48 h-12 text-center text-xl font-bold border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${getRowStyle(
+                    onFocus={() => setSelectedRow(index)}
+                    className={`w-60 h-12 text-center text-xl font-bold border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${getRowStyle(
                       index
                     )}`}
                     maxLength={5}
@@ -136,16 +148,16 @@ export default function WordLadder() {
             ))}
           </div>
 
-          <div className="space-y-3 mb-8">
-            <h3 className="text-lg font-semibold text-gray-700">Clues:</h3>
-            {currentPuzzle.clues.map((clue, index) => (
-              <div key={index} className="flex items-start space-x-3">
-                <span className="text-gray-500 font-mono min-w-6">
-                  {index + 1}.
-                </span>
-                <span className="text-gray-700">{clue}</span>
-              </div>
-            ))}
+          <div className="space-y-3 mb-8 min-h-16">
+            <h3 className="text-lg font-semibold text-gray-700">Clue:</h3>
+            <div className="flex items-start space-x-3 bg-gray-50 p-4 rounded-lg">
+              <span className="text-blue-600 font-mono font-bold min-w-6">
+                {selectedRow + 1}.
+              </span>
+              <span className="text-gray-700 text-lg">
+                {currentPuzzle.clues[selectedRow]}
+              </span>
+            </div>
           </div>
 
           <div className="flex space-x-4 mb-6">
