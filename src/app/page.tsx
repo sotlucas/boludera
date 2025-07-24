@@ -20,7 +20,12 @@ const GAME_PUZZLES = [
 export default function WordLadder() {
   const [currentPuzzle, setCurrentPuzzle] = useState(GAME_PUZZLES[0]);
   const [puzzleIndex, setPuzzleIndex] = useState(0);
-  const [userWords, setUserWords] = useState(["", "", "", ""]);
+  const [userWords, setUserWords] = useState([
+    ["", "", "", "", ""],
+    ["", "", "", "", ""],
+    ["", "", "", "", ""],
+    ["", "", "", "", ""],
+  ]);
   const [revealedRows, setRevealedRows] = useState([
     false,
     false,
@@ -29,17 +34,26 @@ export default function WordLadder() {
   ]);
   const [gameComplete, setGameComplete] = useState(false);
   const [selectedRow, setSelectedRow] = useState(0);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [selectedCol, setSelectedCol] = useState(0);
+  const inputRefs = useRef<(HTMLInputElement | null)[][]>([
+    [null, null, null, null, null],
+    [null, null, null, null, null],
+    [null, null, null, null, null],
+    [null, null, null, null, null],
+  ]);
 
   useEffect(() => {
     resetGame();
   }, [currentPuzzle]);
 
   useEffect(() => {
-    if (inputRefs.current[selectedRow] && !revealedRows[selectedRow]) {
-      inputRefs.current[selectedRow]?.focus();
+    if (
+      inputRefs.current[selectedRow][selectedCol] &&
+      !revealedRows[selectedRow]
+    ) {
+      inputRefs.current[selectedRow][selectedCol]?.focus();
     }
-  }, [selectedRow, revealedRows]);
+  }, [selectedRow, selectedCol, revealedRows]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -53,30 +67,71 @@ export default function WordLadder() {
         if (selectedRow < currentPuzzle.words.length - 1) {
           setSelectedRow(selectedRow + 1);
         }
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        if (selectedCol > 0) {
+          setSelectedCol(selectedCol - 1);
+        }
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        if (selectedCol < 4) {
+          setSelectedCol(selectedCol + 1);
+        }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedRow, currentPuzzle.words.length]);
+  }, [selectedRow, selectedCol, currentPuzzle.words.length]);
 
   const resetGame = () => {
-    setUserWords(["", "", "", ""]);
+    setUserWords([
+      ["", "", "", "", ""],
+      ["", "", "", "", ""],
+      ["", "", "", "", ""],
+      ["", "", "", "", ""],
+    ]);
     setRevealedRows([false, false, false, false]);
     setGameComplete(false);
     setSelectedRow(0);
+    setSelectedCol(0);
   };
 
-  const handleInputChange = (index: number, value: string) => {
+  const handleInputChange = (
+    rowIndex: number,
+    colIndex: number,
+    value: string
+  ) => {
+    if (value.length > 1) return; // Only allow single characters
+
     const newWords = [...userWords];
-    newWords[index] = value.toUpperCase().slice(0, 5);
+    newWords[rowIndex][colIndex] = value.toUpperCase();
     setUserWords(newWords);
+
+    // Auto-advance to next input
+    if (value && colIndex < 4) {
+      setSelectedCol(colIndex + 1);
+    }
 
     // Check if game is complete
     const isComplete = newWords.every(
-      (word, i) => word === currentPuzzle.words[i]
+      (wordArray, i) => wordArray.join("") === currentPuzzle.words[i]
     );
     setGameComplete(isComplete);
+  };
+
+  const handleKeyDown = (
+    rowIndex: number,
+    colIndex: number,
+    event: React.KeyboardEvent
+  ) => {
+    if (
+      event.key === "Backspace" &&
+      !userWords[rowIndex][colIndex] &&
+      colIndex > 0
+    ) {
+      setSelectedCol(colIndex - 1);
+    }
   };
 
   const revealRow = (index: number) => {
@@ -85,7 +140,7 @@ export default function WordLadder() {
     setRevealedRows(newRevealed);
 
     const newWords = [...userWords];
-    newWords[index] = currentPuzzle.words[index];
+    newWords[index] = currentPuzzle.words[index].split("");
     setUserWords(newWords);
   };
 
@@ -107,15 +162,18 @@ export default function WordLadder() {
     setCurrentPuzzle(GAME_PUZZLES[nextIndex]);
   };
 
-  const getRowStyle = (index: number) => {
-    if (revealedRows[index]) {
-      return "bg-blue-100 border-blue-400 text-blue-800";
+  const getInputStyle = (rowIndex: number, colIndex: number) => {
+    const baseStyle =
+      "w-12 h-12 text-center text-xl font-bold border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400";
+
+    if (revealedRows[rowIndex]) {
+      return `${baseStyle} bg-blue-100 border-blue-400 text-blue-800`;
     } else if (gameComplete) {
-      return "bg-green-100 border-green-400 text-green-800";
-    } else if (selectedRow === index) {
-      return "bg-yellow-50 border-yellow-400 text-gray-800";
+      return `${baseStyle} bg-green-100 border-green-400 text-green-800`;
+    } else if (selectedRow === rowIndex) {
+      return `${baseStyle} bg-yellow-50 border-yellow-400 text-gray-800`;
     } else {
-      return "bg-gray-50 border-gray-300 text-gray-800";
+      return `${baseStyle} bg-gray-50 border-gray-300 text-gray-800`;
     }
   };
 
@@ -136,39 +194,32 @@ export default function WordLadder() {
           </div>
 
           <div className="space-y-4 mb-8">
-            {currentPuzzle.words.map((word, index) => (
+            {currentPuzzle.words.map((word, rowIndex) => (
               <div
-                key={index}
-                className="flex items-center justify-center space-x-4"
+                key={rowIndex}
+                className="flex items-center justify-center space-x-2"
               >
-                <div className="flex items-center space-x-4">
+                {[0, 1, 2, 3, 4].map((colIndex) => (
                   <input
+                    key={colIndex}
                     ref={(el) => {
-                      inputRefs.current[index] = el;
+                      inputRefs.current[rowIndex][colIndex] = el;
                     }}
                     type="text"
-                    value={userWords[index]}
-                    onChange={(e) => handleInputChange(index, e.target.value)}
-                    onFocus={() => setSelectedRow(index)}
-                    className={`w-60 h-12 text-center text-xl font-bold border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${getRowStyle(
-                      index
-                    )}`}
-                    maxLength={5}
-                    placeholder="_ _ _ _ _"
-                    disabled={revealedRows[index]}
-                  />
-
-                  {/* <button
-                    onClick={() => revealRow(index)}
-                    disabled={
-                      revealedRows[index] ||
-                      userWords[index] === currentPuzzle.words[index]
+                    value={userWords[rowIndex][colIndex]}
+                    onChange={(e) =>
+                      handleInputChange(rowIndex, colIndex, e.target.value)
                     }
-                    className="px-3 py-2 text-sm bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 disabled:text-gray-500 text-white rounded-lg transition-colors cursor-pointer"
-                  >
-                    Revelar
-                  </button> */}
-                </div>
+                    onKeyDown={(e) => handleKeyDown(rowIndex, colIndex, e)}
+                    onFocus={() => {
+                      setSelectedRow(rowIndex);
+                      setSelectedCol(colIndex);
+                    }}
+                    className={getInputStyle(rowIndex, colIndex)}
+                    maxLength={1}
+                    disabled={revealedRows[rowIndex]}
+                  />
+                ))}
               </div>
             ))}
           </div>
