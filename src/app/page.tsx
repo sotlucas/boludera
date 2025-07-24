@@ -45,14 +45,14 @@ export default function WordLadder() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowUp") {
         event.preventDefault();
-        const newRow =
-          (selectedRow - 1 + currentPuzzle.words.length) %
-          currentPuzzle.words.length;
-        setSelectedRow(newRow);
+        if (selectedRow > 0) {
+          setSelectedRow(selectedRow - 1);
+        }
       } else if (event.key === "ArrowDown") {
         event.preventDefault();
-        const newRow = (selectedRow + 1) % currentPuzzle.words.length;
-        setSelectedRow(newRow);
+        if (selectedRow < currentPuzzle.words.length - 1) {
+          setSelectedRow(selectedRow + 1);
+        }
       }
     };
 
