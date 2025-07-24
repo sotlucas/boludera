@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import ImgMate from "@/assets/mate.png";
 import Image from "next/image";
 
@@ -29,10 +29,36 @@ export default function WordLadder() {
   ]);
   const [gameComplete, setGameComplete] = useState(false);
   const [selectedRow, setSelectedRow] = useState(0);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     resetGame();
   }, [currentPuzzle]);
+
+  useEffect(() => {
+    if (inputRefs.current[selectedRow] && !revealedRows[selectedRow]) {
+      inputRefs.current[selectedRow]?.focus();
+    }
+  }, [selectedRow, revealedRows]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        const newRow =
+          (selectedRow - 1 + currentPuzzle.words.length) %
+          currentPuzzle.words.length;
+        setSelectedRow(newRow);
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault();
+        const newRow = (selectedRow + 1) % currentPuzzle.words.length;
+        setSelectedRow(newRow);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedRow, currentPuzzle.words.length]);
 
   const resetGame = () => {
     setUserWords(["", "", "", ""]);
@@ -117,6 +143,9 @@ export default function WordLadder() {
               >
                 <div className="flex items-center space-x-4">
                   <input
+                    ref={(el) => {
+                      inputRefs.current[index] = el;
+                    }}
                     type="text"
                     value={userWords[index]}
                     onChange={(e) => handleInputChange(index, e.target.value)}
