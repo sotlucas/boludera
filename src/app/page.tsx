@@ -1,103 +1,194 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect } from "react";
+
+const GAME_PUZZLES = [
+  {
+    words: ["GARSO", "GARCO", "GARCA", "GARRA"],
+    clues: [
+      "Acción de escupir con catarro.",
+      "Defecar, materia fecal, excremento.",
+      "Persona que actúa de manera deshonesta o traicionera.",
+      "Sinónimo de esfuerzo (en deportes).",
+    ],
+  },
+];
+
+export default function WordLadder() {
+  const [currentPuzzle, setCurrentPuzzle] = useState(GAME_PUZZLES[0]);
+  const [puzzleIndex, setPuzzleIndex] = useState(0);
+  const [userWords, setUserWords] = useState(["", "", "", ""]);
+  const [revealedRows, setRevealedRows] = useState([
+    false,
+    false,
+    false,
+    false,
+  ]);
+  const [gameComplete, setGameComplete] = useState(false);
+
+  useEffect(() => {
+    resetGame();
+  }, [currentPuzzle]);
+
+  const resetGame = () => {
+    setUserWords(["", "", "", ""]);
+    setRevealedRows([false, false, false, false]);
+    setGameComplete(false);
+  };
+
+  const handleInputChange = (index: number, value: string) => {
+    const newWords = [...userWords];
+    newWords[index] = value.toUpperCase().slice(0, 5);
+    setUserWords(newWords);
+
+    // Check if game is complete
+    const isComplete = newWords.every(
+      (word, i) => word === currentPuzzle.words[i]
+    );
+    setGameComplete(isComplete);
+  };
+
+  const revealRow = (index: number) => {
+    const newRevealed = [...revealedRows];
+    newRevealed[index] = true;
+    setRevealedRows(newRevealed);
+
+    const newWords = [...userWords];
+    newWords[index] = currentPuzzle.words[index];
+    setUserWords(newWords);
+  };
+
+  const getRandomHint = () => {
+    const unrevealedRows = revealedRows
+      .map((revealed, index) => (revealed ? null : index))
+      .filter((index) => index !== null);
+
+    if (unrevealedRows.length === 0) return;
+
+    const randomIndex =
+      unrevealedRows[Math.floor(Math.random() * unrevealedRows.length)];
+    revealRow(randomIndex);
+  };
+
+  const nextPuzzle = () => {
+    const nextIndex = (puzzleIndex + 1) % GAME_PUZZLES.length;
+    setPuzzleIndex(nextIndex);
+    setCurrentPuzzle(GAME_PUZZLES[nextIndex]);
+  };
+
+  const getRowStyle = (index: number) => {
+    const word = userWords[index];
+    const correctWord = currentPuzzle.words[index];
+
+    if (revealedRows[index]) {
+      return "bg-blue-100 border-blue-400 text-blue-800";
+    } else if (word && word === correctWord) {
+      return "bg-green-100 border-green-400 text-green-800";
+    } else {
+      return "bg-gray-50 border-gray-300 text-gray-800";
+    }
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-400 to-purple-600 p-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white rounded-xl shadow-2xl p-8">
+          <h1 className="text-4xl font-bold text-center mb-2 text-gray-800">
+            Word Ladder
+          </h1>
+          <h2 className="text-xl text-center text-gray-600 mb-8">
+            {currentPuzzle.title}
+          </h2>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          <div className="space-y-4 mb-8">
+            {currentPuzzle.words.map((word, index) => (
+              <div key={index} className="flex items-center space-x-4">
+                <div className="w-8 text-center text-gray-500 font-mono">
+                  {index + 1}.
+                </div>
+
+                <div className="flex-1 flex items-center space-x-4">
+                  <input
+                    type="text"
+                    value={userWords[index]}
+                    onChange={(e) => handleInputChange(index, e.target.value)}
+                    className={`w-48 h-12 text-center text-xl font-bold border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${getRowStyle(
+                      index
+                    )}`}
+                    maxLength={5}
+                    placeholder="_____"
+                    disabled={revealedRows[index]}
+                  />
+
+                  <button
+                    onClick={() => revealRow(index)}
+                    disabled={
+                      revealedRows[index] ||
+                      userWords[index] === currentPuzzle.words[index]
+                    }
+                    className="px-3 py-2 text-sm bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 rounded-lg transition-colors"
+                  >
+                    Reveal
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-3 mb-8">
+            <h3 className="text-lg font-semibold text-gray-700">Clues:</h3>
+            {currentPuzzle.clues.map((clue, index) => (
+              <div key={index} className="flex items-start space-x-3">
+                <span className="text-gray-500 font-mono min-w-6">
+                  {index + 1}.
+                </span>
+                <span className="text-gray-700">{clue}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex space-x-4 mb-6">
+            <button
+              onClick={getRandomHint}
+              disabled={revealedRows.every((revealed) => revealed)}
+              className="flex-1 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-300 disabled:text-gray-500 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            >
+              Hint
+            </button>
+            <button
+              onClick={resetGame}
+              className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            >
+              Reset
+            </button>
+          </div>
+
+          {gameComplete && (
+            <div className="text-center space-y-4 mb-6">
+              <div className="text-4xl">🎉</div>
+              <h2 className="text-2xl font-bold text-green-600">
+                Congratulations!
+              </h2>
+              <p className="text-gray-600">You solved the word ladder!</p>
+              <button
+                onClick={nextPuzzle}
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+              >
+                Next Puzzle
+              </button>
+            </div>
+          )}
+
+          <div className="text-center text-sm text-gray-500">
+            <p>
+              Puzzle {puzzleIndex + 1} of {GAME_PUZZLES.length}
+            </p>
+            <p className="mt-2 text-xs">
+              Each word differs from the next by exactly one letter
+            </p>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
     </div>
   );
 }
