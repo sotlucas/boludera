@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import ImgMate from "@/assets/mate.png";
+import Messi from "@/assets/messi.gif";
 import Image from "next/image";
 import Confetti from "react-confetti";
 
@@ -330,6 +331,13 @@ export default function WordLadder() {
               <h2 className="text-2xl font-bold text-green-600">
                 Felicitaciones!
               </h2>
+              <Image
+                src={Messi}
+                alt="Messi"
+                width={200}
+                height={120}
+                className="mx-auto rounded-lg shadow"
+              />
             </div>
           )}
 
