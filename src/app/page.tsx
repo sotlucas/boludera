@@ -41,6 +41,7 @@ export default function WordLadder() {
   });
   const [selectedRow, setSelectedRow] = useState(0);
   const [selectedCol, setSelectedCol] = useState(0);
+  const [showHowToPlay, setShowHowToPlay] = useState(true);
   const gridRef = useRef<HTMLDivElement>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[][]>([
     [null, null, null, null, null],
@@ -247,6 +248,52 @@ export default function WordLadder() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br bg-[#74acdf] p-4">
+      {/* How to Play Modal */}
+      {showHowToPlay && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <div className="flex items-center justify-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">cómo jugar</h2>
+              <Image
+                className="h-6 w-6 ml-3"
+                src={ImgMate}
+                alt="mate"
+                width={24}
+                height={24}
+                priority
+              />
+            </div>
+
+            <div className="space-y-4 text-gray-700">
+              <div>
+                <h3 className="font-semibold text-lg mb-2">objetivo:</h3>
+                <p>
+                  completá la escalera de palabras donde cada palabra difiere de
+                  la anterior por exactamente una letra
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-lg mb-2">instrucciones:</h3>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>escribí una letra por casilla</li>
+                  <li>seleccioná una fila para ver su pista</li>
+                  <li>podés revelar una fila si necesitás ayuda</li>
+                  <li>completá todas las palabras para ganar!</li>
+                </ul>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowHowToPlay(false)}
+              className="w-full mt-6 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors cursor-pointer"
+            >
+              Jugar
+            </button>
+          </div>
+        </div>
+      )}
+
       {gameComplete && (
         <Confetti
           width={windowDimensions.width}
@@ -269,6 +316,13 @@ export default function WordLadder() {
               height={32}
               priority
             />
+            <button
+              onClick={() => setShowHowToPlay(true)}
+              className="ml-4 text-blue-500 hover:text-blue-600 text-sm font-medium"
+              title="¿Cómo jugar?"
+            >
+              ❓
+            </button>
           </div>
 
           <div ref={gridRef} className="space-y-4 mb-8" onBlur={handleGridBlur}>
@@ -340,12 +394,6 @@ export default function WordLadder() {
               />
             </div>
           )}
-
-          <div className="text-center text-sm text-gray-500">
-            <p className="mt-2 text-xs">
-              Cada palabra difiere de la siguiente por exactamente una letra
-            </p>
-          </div>
         </div>
       </div>
     </div>
