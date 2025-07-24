@@ -185,11 +185,8 @@ export default function WordLadder() {
           )}
 
           <div className="text-center text-sm text-gray-500">
-            <p>
-              Puzzle {puzzleIndex + 1} of {GAME_PUZZLES.length}
-            </p>
             <p className="mt-2 text-xs">
-              Each word differs from the next by exactly one letter
+              Cada palabra difiere de la siguiente por exactamente una letra
             </p>
           </div>
         </div>
