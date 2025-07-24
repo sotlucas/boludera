@@ -35,6 +35,7 @@ export default function WordLadder() {
   const [gameComplete, setGameComplete] = useState(false);
   const [selectedRow, setSelectedRow] = useState(0);
   const [selectedCol, setSelectedCol] = useState(0);
+  const gridRef = useRef<HTMLDivElement>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[][]>([
     [null, null, null, null, null],
     [null, null, null, null, null],
@@ -48,6 +49,8 @@ export default function WordLadder() {
 
   useEffect(() => {
     if (
+      selectedRow >= 0 &&
+      selectedCol >= 0 &&
       inputRefs.current[selectedRow][selectedCol] &&
       !revealedRows[selectedRow]
     ) {
@@ -134,6 +137,17 @@ export default function WordLadder() {
     }
   };
 
+  const handleGridBlur = (event: React.FocusEvent) => {
+    // Check if the new focus target is outside the grid
+    if (
+      gridRef.current &&
+      !gridRef.current.contains(event.relatedTarget as Node)
+    ) {
+      setSelectedRow(-1);
+      setSelectedCol(-1);
+    }
+  };
+
   const revealRow = (index: number) => {
     const newRevealed = [...revealedRows];
     newRevealed[index] = true;
@@ -195,7 +209,7 @@ export default function WordLadder() {
       return `${baseStyle} ${borderRadius} ${borderStyle} bg-blue-100 border-blue-400 text-blue-800 focus:ring-2 focus:ring-blue-400`;
     } else if (gameComplete) {
       return `${baseStyle} ${borderRadius} ${borderStyle} bg-green-100 border-green-400 text-green-800 focus:ring-2 focus:ring-green-400`;
-    } else if (selectedRow === rowIndex) {
+    } else if (selectedRow === rowIndex && selectedRow >= 0) {
       return `${baseStyle} ${borderRadius} ${borderStyle} bg-yellow-50 border-yellow-400 text-gray-800 focus:ring-2 focus:ring-yellow-400`;
     } else {
       return `${baseStyle} ${borderRadius} ${borderStyle} bg-gray-50 border-gray-300 text-gray-800 focus:ring-2 focus:ring-blue-400`;
@@ -218,7 +232,7 @@ export default function WordLadder() {
             />
           </div>
 
-          <div className="space-y-4 mb-8">
+          <div ref={gridRef} className="space-y-4 mb-8" onBlur={handleGridBlur}>
             {currentPuzzle.words.map((word, rowIndex) => (
               <div key={rowIndex} className="flex items-center justify-center">
                 {[0, 1, 2, 3, 4].map((colIndex) => (
@@ -249,7 +263,9 @@ export default function WordLadder() {
           <div className="space-y-3 mb-8 min-h-16">
             <div className="flex items-center justify-center space-x-3 bg-gray-50 p-4 rounded-lg">
               <span className="text-gray-700 text-lg text-center">
-                {currentPuzzle.clues[selectedRow]}
+                {selectedRow >= 0
+                  ? currentPuzzle.clues[selectedRow]
+                  : "Selecciona una fila para ver la pista"}
               </span>
             </div>
           </div>
