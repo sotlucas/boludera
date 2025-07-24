@@ -8,7 +8,7 @@ import Confetti from "react-confetti";
 
 const GAME_PUZZLES = [
   {
-    words: ["GARSO", "GARCO", "GARCA", "GARRA"],
+    words: ["GARZO", "GARCO", "GARCA", "GARRA"],
     clues: [
       "Acción de escupir con catarro",
       "Defecar, materia fecal, excremento",
@@ -286,7 +286,7 @@ export default function WordLadder() {
 
             <button
               onClick={() => setShowHowToPlay(false)}
-              className="w-full mt-6 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors cursor-pointer"
+              className="w-full mt-6 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors cursor-pointer"
             >
               Jugar
             </button>
@@ -305,7 +305,15 @@ export default function WordLadder() {
         />
       )}
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-xl shadow-2xl p-8">
+        <div className="bg-white rounded-xl shadow-2xl p-8 relative">
+          <button
+            onClick={() => setShowHowToPlay(true)}
+            className="absolute top-4 right-4 text-blue-500 hover:text-blue-600 text-lg font-medium w-8 h-8 flex items-center justify-center rounded-full hover:bg-blue-50 transition-colors"
+            title="¿Cómo jugar?"
+          >
+            ❓
+          </button>
+
           <div className="flex items-center justify-center mb-8">
             <h1 className="text-4xl font-bold text-gray-800">boludera</h1>
             <Image
@@ -316,13 +324,6 @@ export default function WordLadder() {
               height={32}
               priority
             />
-            <button
-              onClick={() => setShowHowToPlay(true)}
-              className="ml-4 text-blue-500 hover:text-blue-600 text-sm font-medium"
-              title="¿Cómo jugar?"
-            >
-              ❓
-            </button>
           </div>
 
           <div ref={gridRef} className="space-y-4 mb-8" onBlur={handleGridBlur}>
