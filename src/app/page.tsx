@@ -164,16 +164,41 @@ export default function WordLadder() {
 
   const getInputStyle = (rowIndex: number, colIndex: number) => {
     const baseStyle =
-      "w-12 h-12 text-center text-xl font-bold border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400";
+      "w-12 h-12 text-center text-xl font-bold focus:outline-none focus:z-10";
+
+    // Border radius logic for seamless appearance
+    let borderRadius = "";
+    if (colIndex === 0) {
+      borderRadius = "rounded-l-lg";
+    } else if (colIndex === 4) {
+      borderRadius = "rounded-r-lg";
+    } else {
+      borderRadius = "rounded-none";
+    }
+
+    // Check if this input or the previous one is focused to handle left border
+    const isFocused = selectedRow === rowIndex && selectedCol === colIndex;
+    const isPrevFocused =
+      selectedRow === rowIndex && selectedCol === colIndex - 1;
+
+    // Border logic to avoid double borders but handle focus
+    let borderStyle = "";
+    if (colIndex === 0) {
+      borderStyle = "border-2";
+    } else if (isFocused || isPrevFocused) {
+      borderStyle = "border-2";
+    } else {
+      borderStyle = "border-2 border-l-0";
+    }
 
     if (revealedRows[rowIndex]) {
-      return `${baseStyle} bg-blue-100 border-blue-400 text-blue-800`;
+      return `${baseStyle} ${borderRadius} ${borderStyle} bg-blue-100 border-blue-400 text-blue-800 focus:ring-2 focus:ring-blue-400`;
     } else if (gameComplete) {
-      return `${baseStyle} bg-green-100 border-green-400 text-green-800`;
+      return `${baseStyle} ${borderRadius} ${borderStyle} bg-green-100 border-green-400 text-green-800 focus:ring-2 focus:ring-green-400`;
     } else if (selectedRow === rowIndex) {
-      return `${baseStyle} bg-yellow-50 border-yellow-400 text-gray-800`;
+      return `${baseStyle} ${borderRadius} ${borderStyle} bg-yellow-50 border-yellow-400 text-gray-800 focus:ring-2 focus:ring-yellow-400`;
     } else {
-      return `${baseStyle} bg-gray-50 border-gray-300 text-gray-800`;
+      return `${baseStyle} ${borderRadius} ${borderStyle} bg-gray-50 border-gray-300 text-gray-800 focus:ring-2 focus:ring-blue-400`;
     }
   };
 
@@ -195,10 +220,7 @@ export default function WordLadder() {
 
           <div className="space-y-4 mb-8">
             {currentPuzzle.words.map((word, rowIndex) => (
-              <div
-                key={rowIndex}
-                className="flex items-center justify-center space-x-2"
-              >
+              <div key={rowIndex} className="flex items-center justify-center">
                 {[0, 1, 2, 3, 4].map((colIndex) => (
                   <input
                     key={colIndex}
