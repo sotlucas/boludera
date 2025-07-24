@@ -303,7 +303,7 @@ export default function WordLadder() {
               <span className="text-gray-700 text-lg text-center">
                 {selectedRow >= 0
                   ? currentPuzzle.clues[selectedRow]
-                  : "Selecciona una fila para ver la pista"}
+                  : "Seleccioná una fila para ver la pista"}
               </span>
             </div>
           </div>
