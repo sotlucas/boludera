@@ -8,10 +8,10 @@ const GAME_PUZZLES = [
   {
     words: ["GARSO", "GARCO", "GARCA", "GARRA"],
     clues: [
-      "Acción de escupir con catarro.",
-      "Defecar, materia fecal, excremento.",
-      "Persona que actúa de manera deshonesta o traicionera.",
-      "Sinónimo de esfuerzo (en deportes).",
+      "Acción de escupir con catarro",
+      "Defecar, materia fecal, excremento",
+      "Persona que actúa de manera deshonesta o traicionera",
+      "Sinónimo de esfuerzo (en deportes)",
     ],
     title: "",
   },
@@ -115,10 +115,6 @@ export default function WordLadder() {
           <div className="space-y-4 mb-8">
             {currentPuzzle.words.map((word, index) => (
               <div key={index} className="flex items-center space-x-4">
-                <div className="w-8 text-center text-gray-500 font-mono">
-                  {index + 1}.
-                </div>
-
                 <div className="flex-1 flex items-center space-x-4">
                   <input
                     type="text"
@@ -149,11 +145,7 @@ export default function WordLadder() {
           </div>
 
           <div className="space-y-3 mb-8 min-h-16">
-            <h3 className="text-lg font-semibold text-gray-700">Clue:</h3>
             <div className="flex items-start space-x-3 bg-gray-50 p-4 rounded-lg">
-              <span className="text-blue-600 font-mono font-bold min-w-6">
-                {selectedRow + 1}.
-              </span>
               <span className="text-gray-700 text-lg">
                 {currentPuzzle.clues[selectedRow]}
               </span>
