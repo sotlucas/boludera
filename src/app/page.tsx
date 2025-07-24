@@ -32,6 +32,8 @@ export default function WordLadder() {
     false,
     false,
   ]);
+  const [rowOrder, setRowOrder] = useState([0, 1, 2, 3]);
+  const [draggedRow, setDraggedRow] = useState<number | null>(null);
   const [gameComplete, setGameComplete] = useState(false);
   const [selectedRow, setSelectedRow] = useState(0);
   const [selectedCol, setSelectedCol] = useState(0);
@@ -92,6 +94,15 @@ export default function WordLadder() {
       ["", "", "", "", ""],
     ]);
     setRevealedRows([false, false, false, false]);
+
+    // Shuffle the row order
+    const shuffled = [...Array(currentPuzzle.words.length).keys()];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    setRowOrder(shuffled);
+
     setGameComplete(false);
     setSelectedRow(0);
     setSelectedCol(0);
@@ -113,10 +124,14 @@ export default function WordLadder() {
       setSelectedCol(colIndex + 1);
     }
 
-    // Check if game is complete
-    const isComplete = newWords.every(
-      (wordArray, i) => wordArray.join("") === currentPuzzle.words[i]
-    );
+    // Check if game is complete - rows must be in correct order AND all words correct
+    const isOrderCorrect = rowOrder.every((rowIdx, i) => rowIdx === i);
+    const isComplete =
+      isOrderCorrect &&
+      newWords.every(
+        (wordArray, i) =>
+          wordArray.join("") === currentPuzzle.words[rowOrder[i]]
+      );
     setGameComplete(isComplete);
   };
 
@@ -140,7 +155,8 @@ export default function WordLadder() {
     setRevealedRows(newRevealed);
 
     const newWords = [...userWords];
-    newWords[index] = currentPuzzle.words[index].split("");
+    const actualRowIndex = rowOrder[index];
+    newWords[index] = currentPuzzle.words[actualRowIndex].split("");
     setUserWords(newWords);
   };
 
@@ -160,6 +176,62 @@ export default function WordLadder() {
     const nextIndex = (puzzleIndex + 1) % GAME_PUZZLES.length;
     setPuzzleIndex(nextIndex);
     setCurrentPuzzle(GAME_PUZZLES[nextIndex]);
+  };
+
+  const handleDragStart = (e: React.DragEvent, rowIndex: number) => {
+    setDraggedRow(rowIndex);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+
+    if (draggedRow === null || draggedRow === targetIndex) {
+      setDraggedRow(null);
+      return;
+    }
+
+    const newOrder = [...rowOrder];
+    const draggedItem = newOrder[draggedRow];
+    newOrder.splice(draggedRow, 1);
+    newOrder.splice(targetIndex, 0, draggedItem);
+
+    // Also reorder user words and revealed rows to match
+    const newUserWords = [...userWords];
+    const newRevealedRows = [...revealedRows];
+
+    const draggedUserWord = newUserWords[draggedRow];
+    const draggedRevealed = newRevealedRows[draggedRow];
+
+    newUserWords.splice(draggedRow, 1);
+    newRevealedRows.splice(draggedRow, 1);
+
+    newUserWords.splice(targetIndex, 0, draggedUserWord);
+    newRevealedRows.splice(targetIndex, 0, draggedRevealed);
+
+    setRowOrder(newOrder);
+    setUserWords(newUserWords);
+    setRevealedRows(newRevealedRows);
+    setDraggedRow(null);
+
+    // Focus the dropped row
+    setSelectedRow(targetIndex);
+    setSelectedCol(0);
+
+    // Check if game is complete
+    const isOrderCorrect = newOrder.every((rowIdx, i) => rowIdx === i);
+    const isComplete =
+      isOrderCorrect &&
+      newUserWords.every(
+        (wordArray, i) =>
+          wordArray.join("") === currentPuzzle.words[newOrder[i]]
+      );
+    setGameComplete(isComplete);
   };
 
   const getInputStyle = (rowIndex: number, colIndex: number) => {
@@ -202,6 +274,17 @@ export default function WordLadder() {
     }
   };
 
+  const getRowStyle = (rowIndex: number) => {
+    const baseStyle =
+      "flex items-center justify-center cursor-move transition-all duration-200";
+
+    if (draggedRow === rowIndex) {
+      return `${baseStyle} opacity-50 scale-105`;
+    }
+
+    return `${baseStyle} hover:scale-102`;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br bg-[#74acdf] p-4">
       <div className="max-w-2xl mx-auto">
@@ -219,27 +302,43 @@ export default function WordLadder() {
           </div>
 
           <div className="space-y-4 mb-8">
-            {currentPuzzle.words.map((word, rowIndex) => (
-              <div key={rowIndex} className="flex items-center justify-center">
+            {rowOrder.map((originalRowIndex, displayRowIndex) => (
+              <div
+                key={`${originalRowIndex}-${displayRowIndex}`}
+                className={getRowStyle(displayRowIndex)}
+                draggable
+                onDragStart={(e) => handleDragStart(e, displayRowIndex)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, displayRowIndex)}
+              >
+                <div className="flex items-center mr-4 text-gray-400">
+                  <span className="text-sm">⋮⋮</span>
+                </div>
                 {[0, 1, 2, 3, 4].map((colIndex) => (
                   <input
                     key={colIndex}
                     ref={(el) => {
-                      inputRefs.current[rowIndex][colIndex] = el;
+                      inputRefs.current[displayRowIndex][colIndex] = el;
                     }}
                     type="text"
-                    value={userWords[rowIndex][colIndex]}
+                    value={userWords[displayRowIndex][colIndex]}
                     onChange={(e) =>
-                      handleInputChange(rowIndex, colIndex, e.target.value)
+                      handleInputChange(
+                        displayRowIndex,
+                        colIndex,
+                        e.target.value
+                      )
                     }
-                    onKeyDown={(e) => handleKeyDown(rowIndex, colIndex, e)}
+                    onKeyDown={(e) =>
+                      handleKeyDown(displayRowIndex, colIndex, e)
+                    }
                     onFocus={() => {
-                      setSelectedRow(rowIndex);
+                      setSelectedRow(displayRowIndex);
                       setSelectedCol(colIndex);
                     }}
-                    className={getInputStyle(rowIndex, colIndex)}
+                    className={getInputStyle(displayRowIndex, colIndex)}
                     maxLength={1}
-                    disabled={revealedRows[rowIndex]}
+                    disabled={revealedRows[displayRowIndex]}
                   />
                 ))}
               </div>
@@ -249,7 +348,7 @@ export default function WordLadder() {
           <div className="space-y-3 mb-8 min-h-16">
             <div className="flex items-center justify-center space-x-3 bg-gray-50 p-4 rounded-lg">
               <span className="text-gray-700 text-lg text-center">
-                {currentPuzzle.clues[selectedRow]}
+                {currentPuzzle.clues[rowOrder[selectedRow]]}
               </span>
             </div>
           </div>
@@ -281,7 +380,8 @@ export default function WordLadder() {
 
           <div className="text-center text-sm text-gray-500">
             <p className="mt-2 text-xs">
-              Cada palabra difiere de la siguiente por exactamente una letra
+              Arrastra las filas para ordenarlas correctamente. Cada palabra
+              difiere de la siguiente por exactamente una letra
             </p>
           </div>
         </div>
