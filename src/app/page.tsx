@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import ImgMate from "@/assets/mate.png";
 import Image from "next/image";
+import Confetti from "react-confetti";
 
 const GAME_PUZZLES = [
   {
@@ -33,6 +34,10 @@ export default function WordLadder() {
     false,
   ]);
   const [gameComplete, setGameComplete] = useState(false);
+  const [windowDimensions, setWindowDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
   const [selectedRow, setSelectedRow] = useState(0);
   const [selectedCol, setSelectedCol] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -87,6 +92,20 @@ export default function WordLadder() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedRow, selectedCol, currentPuzzle.words.length]);
 
+  useEffect(() => {
+    const updateWindowDimensions = () => {
+      setWindowDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    updateWindowDimensions();
+    window.addEventListener("resize", updateWindowDimensions);
+
+    return () => window.removeEventListener("resize", updateWindowDimensions);
+  }, []);
+
   const resetGame = () => {
     setUserWords([
       ["", "", "", "", ""],
@@ -134,6 +153,15 @@ export default function WordLadder() {
       colIndex > 0
     ) {
       setSelectedCol(colIndex - 1);
+    } else if (event.key === "Delete") {
+      // Clear current character and move to next input
+      const newWords = [...userWords];
+      newWords[rowIndex][colIndex] = "";
+      setUserWords(newWords);
+
+      if (colIndex < 4) {
+        setSelectedCol(colIndex + 1);
+      }
     }
   };
 
@@ -218,6 +246,16 @@ export default function WordLadder() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br bg-[#74acdf] p-4">
+      {gameComplete && (
+        <Confetti
+          width={windowDimensions.width}
+          height={windowDimensions.height}
+          colors={["#74ACDF", "#FFFFFF", "#87CEEB", "#E6F3FF"]}
+          numberOfPieces={400}
+          recycle={true}
+          run={gameComplete}
+        />
+      )}
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-xl shadow-2xl p-8">
           <div className="flex items-center justify-center mb-8">
