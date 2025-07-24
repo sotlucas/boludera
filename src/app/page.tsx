@@ -82,12 +82,9 @@ export default function WordLadder() {
   };
 
   const getRowStyle = (index: number) => {
-    const word = userWords[index];
-    const correctWord = currentPuzzle.words[index];
-
     if (revealedRows[index]) {
       return "bg-blue-100 border-blue-400 text-blue-800";
-    } else if (word && word === correctWord) {
+    } else if (gameComplete) {
       return "bg-green-100 border-green-400 text-green-800";
     } else if (selectedRow === index) {
       return "bg-yellow-50 border-yellow-400 text-gray-800";
@@ -128,7 +125,7 @@ export default function WordLadder() {
                       index
                     )}`}
                     maxLength={5}
-                    placeholder="_____"
+                    placeholder="_ _ _ _ _"
                     disabled={revealedRows[index]}
                   />
 
@@ -175,15 +172,8 @@ export default function WordLadder() {
             <div className="text-center space-y-4 mb-6">
               <div className="text-4xl">🎉</div>
               <h2 className="text-2xl font-bold text-green-600">
-                Congratulations!
+                Felicitaciones!
               </h2>
-              <p className="text-gray-600">You solved the word ladder!</p>
-              <button
-                onClick={nextPuzzle}
-                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg transition-colors"
-              >
-                Next Puzzle
-              </button>
             </div>
           )}
 
