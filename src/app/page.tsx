@@ -291,7 +291,7 @@ export default function WordLadder() {
                     }}
                     className={getInputStyle(rowIndex, colIndex)}
                     maxLength={1}
-                    disabled={revealedRows[rowIndex]}
+                    disabled={revealedRows[rowIndex] || gameComplete}
                   />
                 ))}
               </div>
