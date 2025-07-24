@@ -132,7 +132,7 @@ export default function WordLadder() {
                     disabled={revealedRows[index]}
                   />
 
-                  <button
+                  {/* <button
                     onClick={() => revealRow(index)}
                     disabled={
                       revealedRows[index] ||
@@ -141,7 +141,7 @@ export default function WordLadder() {
                     className="px-3 py-2 text-sm bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 disabled:text-gray-500 text-white rounded-lg transition-colors cursor-pointer"
                   >
                     Revelar
-                  </button>
+                  </button> */}
                 </div>
               </div>
             ))}
@@ -157,11 +157,11 @@ export default function WordLadder() {
 
           <div className="flex space-x-4 mb-6">
             <button
-              onClick={getRandomHint}
+              onClick={() => revealRow(selectedRow)}
               disabled={revealedRows.every((revealed) => revealed)}
               className="flex-1 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-300 disabled:text-gray-500 text-white font-bold py-3 px-6 rounded-lg transition-colors cursor-pointer"
             >
-              Pista
+              Revelar fila
             </button>
             <button
               onClick={resetGame}
