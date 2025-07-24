@@ -135,9 +135,9 @@ export default function WordLadder() {
                       revealedRows[index] ||
                       userWords[index] === currentPuzzle.words[index]
                     }
-                    className="px-3 py-2 text-sm bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 rounded-lg transition-colors"
+                    className="px-3 py-2 text-sm bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 disabled:text-gray-500 text-white disabled:text-gray-500 rounded-lg transition-colors cursor-pointer"
                   >
-                    Reveal
+                    Revelar
                   </button>
                 </div>
               </div>
@@ -156,15 +156,15 @@ export default function WordLadder() {
             <button
               onClick={getRandomHint}
               disabled={revealedRows.every((revealed) => revealed)}
-              className="flex-1 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-300 disabled:text-gray-500 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+              className="flex-1 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-300 disabled:text-gray-500 text-white font-bold py-3 px-6 rounded-lg transition-colors cursor-pointer"
             >
-              Hint
+              Pista
             </button>
             <button
               onClick={resetGame}
-              className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+              className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors cursor-pointer"
             >
-              Reset
+              Reiniciar
             </button>
           </div>
 
